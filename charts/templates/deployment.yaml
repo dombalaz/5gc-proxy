@@ -1,16 +1,14 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "5gc-proxy.fullname" . }}
+  name: {{ include "proxy-5gc.fullname" . }}
   labels:
-    {{- include "5gc-proxy.labels" . | nindent 4 }}
+    {{- include "proxy-5gc.labels" . | nindent 4 }}
 spec:
-  {{- if not .Values.autoscaling.enabled }}
-  replicas: {{ .Values.replicaCount }}
-  {{- end }}
+  replicas: 1
   selector:
     matchLabels:
-      {{- include "5gc-proxy.selectorLabels" . | nindent 6 }}
+      {{- include "proxy-5gc.selectorLabels" . | nindent 6 }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
@@ -18,7 +16,7 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       labels:
-        {{- include "5gc-proxy.labels" . | nindent 8 }}
+        {{- include "proxy-5gc.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
         {{- toYaml . | nindent 8 }}
         {{- end }}
@@ -27,7 +25,7 @@ spec:
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
-      serviceAccountName: {{ include "5gc-proxy.serviceAccountName" . }}
+      serviceAccountName: {{ include "proxy-5gc.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
       containers:
@@ -40,14 +38,14 @@ spec:
             - name: http
               containerPort: {{ .Values.service.port }}
               protocol: TCP
-          livenessProbe:
-            {{- toYaml .Values.livenessProbe | nindent 12 }}
-          readinessProbe:
-            {{- toYaml .Values.readinessProbe | nindent 12 }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: PORT
+              value: "{{ .Values.service.port }}"
           envFrom:
             - configMapRef:
-              name: {{ include "5gc-proxy.fullname" . }}
+                name: {{ include "proxy-5gc.fullname" . }}
         - name: {{ .Chart.Name }}-proxy
-          image: "{{ .Values.5gc-proxy.image.repository }}:{{ .Values.5gc-proxy.image.tag | default .Chart.AppVersion }}"
+          image: "{{ .Values.proxy.image.repository }}:{{ .Values.proxy.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
