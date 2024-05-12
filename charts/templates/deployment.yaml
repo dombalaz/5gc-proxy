@@ -43,9 +43,19 @@ spec:
           env:
             - name: PORT
               value: "{{ .Values.service.port }}"
-          envFrom:
-            - configMapRef:
-                name: {{ include "proxy-5gc.fullname" . }}
+            - name: URLS
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "proxy-5gc.fullname" . }}
+                  key: URLS
         - name: {{ .Chart.Name }}-proxy
           image: "{{ .Values.proxy.image.repository }}:{{ .Values.proxy.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.proxy.image.pullPolicy }}
+          volumeMounts:
+          - mountPath: "/"
+            name: config
+            subPath: config.json
+    volumes:
+      name: config
+      configMap:
+        name: {{ include "proxy-5gc.fullname" . }}

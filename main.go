@@ -11,20 +11,45 @@ import (
 	"time"
 )
 
-var customTransport = http.DefaultTransport
+type Config struct {
+	ListeningPort int               `json:"listeningPort"`
+	NfUrls        map[string]string `json:"nfUrls"`
+}
 
 var endpoint = "http://127.0.0.1:1000"
-
 var client = &http.Client{
 	Timeout: 10 * time.Second, // Timeout after 10 seconds
+}
+var config = Config{}
+
+func getEndpoint(url string) string {
+	res := strings.Split(url, "/")
+	if len(res) == 0 {
+		fmt.Println("Path is empty, returning default endpoint")
+		return endpoint
+	}
+	if res[0][0] != 'n' && res[0][0] != 'N' {
+		fmt.Println("path does not begin with character n, returing default endpoint")
+		return endpoint
+	}
+	part := res[0][1:]
+	i := strings.LastIndex(part, "-")
+	if i == -1 {
+		fmt.Println("failed to parse url path", url)
+		return endpoint
+	}
+	name := part[:i]
+	finalUrl, found := config.NfUrls[strings.ToUpper(name)]
+	if !found {
+		fmt.Println("NF not found in the configuration, returing default endpoint")
+		return endpoint
+	}
+	return finalUrl
 }
 
 func addCorsHeader(res http.ResponseWriter) {
 	headers := res.Header()
 	headers.Add("Access-Control-Allow-Origin", "*")
-	//headers.Add("Vary", "Origin")
-	//headers.Add("Vary", "Access-Control-Request-Method")
-	//headers.Add("Vary", "Access-Control-Request-Headers")
 	headers.Add("Access-Control-Allow-Headers", "*")
 	headers.Add("Access-Control-Allow-Methods", "*")
 }
@@ -39,7 +64,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Create a new HTTP request with the same method, URL, and body as the original request
 	targetURL := r.URL
-	proxyReq, err := http.NewRequest(r.Method, endpoint+targetURL.String(), r.Body)
+	proxyReq, err := http.NewRequest(r.Method, getEndpoint(r.URL.Path)+targetURL.String(), r.Body)
 	if err != nil {
 		http.Error(w, "Error creating proxy request", http.StatusInternalServerError)
 		return
@@ -133,11 +158,25 @@ func setEnv() {
 	fo.WriteString(final2)
 }
 
+func loadConfig(dat []byte) {
+	err := json.Unmarshal(dat, &config)
+	if err != nil {
+		fmt.Println("error parsing config: ", err)
+	}
+}
+
 func main() {
 	args := os.Args[1:]
 	if len(args) != 0 {
 		setEnv()
 		return
+	}
+
+	dat, err := os.ReadFile("config.json")
+	if err == nil {
+		loadConfig(dat)
+	} else {
+		fmt.Println("error opening config file: ", err)
 	}
 
 	http.HandleFunc("/", handler)

@@ -276,3 +276,5 @@ data:
         "name": "Nchf ConvergedCharging"
       }
     ]
+  config: |-
+    {{- toJson .Values.proxy.config | nindent 4 }}
