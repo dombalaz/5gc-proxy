@@ -4,6 +4,10 @@
 
 The project is one of the result of my diploma thesis. The thesis shows simulatoin of open-source 5GC deployment in Kubernetes cluster. For more info about the cluster setup please read the thesis.
 
+```
+BALÁŽ, Dominik. Design of 5G Laboratory. Online. Diplomová práce. Brno: Masarykova univerzita, Fakulta informatiky. Dostupné z: https://is.muni.cz/th/m8n4k/.
+```
+
 ## Installation
 
 Build docker image.
