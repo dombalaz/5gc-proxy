@@ -2,6 +2,8 @@
 
 5GC Proxy is an simple web server that handles Http requests from the openapi client. The requests are proxied to the 5G core network. The server is bundled into the docker image that can be deployed to the K8s cluster using helmcharts.
 
+The project is one of the result of my diploma thesis. The thesis shows simulatoin of open-source 5GC deployment in Kubernetes cluster. For more info about the cluster setup please read the thesis.
+
 ## Installation
 
 Build docker image.
