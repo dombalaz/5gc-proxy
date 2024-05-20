@@ -1,0 +1,12 @@
+cff-version: 1.2.0
+title: Design of 5G Laboratory
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Dominik
+    family-names: Baláž
+repository-code: 'https://github.com/dombalaz/5gc-proxy'
+url: 'https://is.muni.cz/th/m8n4k'
+date-released: 2024-05-20
