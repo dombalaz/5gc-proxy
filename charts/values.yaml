@@ -2,6 +2,9 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  clusterIp: 192.168.124.10
+
 image:
   repository: swaggerapi/swagger-ui
   pullPolicy: IfNotPresent
@@ -14,10 +17,8 @@ proxy:
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
     tag: "latest"
-  config:
-    nfUrls:
-      - name: AMF
-        url: http://amf.free5gc
+  service:
+    nodePort: 30081
 
 
 imagePullSecrets: []
@@ -51,6 +52,7 @@ securityContext: {}
 
 service:
   port: 8081
+  nodePort: 30080
 
 resources: {}
   # We usually recommend not to specify default resources and to leave this as a conscious

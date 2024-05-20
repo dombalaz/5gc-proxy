@@ -7,8 +7,10 @@
 Build docker image.
 
 ```bash
-docker image built -t 5gc-proxy .
+docker image built -t proxy-5gc .
 ```
+
+It is expected that the `config.json` file is preconfigured before the building the image.
 
 ## Usage
 
@@ -18,11 +20,14 @@ $ docker container run -it 5gc-proxy
 Server is running on port 8080
 ```
 
-More desirable is to deploy the application, with the 
+More desirable is to deploy the application using helm. Keep in mind that the image should be available to the kubernetes. It can be sideloaded to the `microk8s`.
 
 ```bash
+docker image save proxy-5gc | microk8s image import
 helm install -n free5gc 5gc-proxy charts
 ```
+
+Both services will be created using the NodePort, that is specified in the `values.yaml`. The UI is then accessible by default on port `30080`.
 
 ## License
 

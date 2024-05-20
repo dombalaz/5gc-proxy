@@ -1,0 +1,12 @@
+{
+    "nfUrls": {
+        "AMF": "http://free5gc-free5gc-amf-service:80",
+        "AUSF": "http://free5gc-free5gc-amf-service:80",
+        "NSSF": "http://free5gc-free5gc-amf-service:80",
+        "PCF": "http://free5gc-free5gc-amf-service:80",
+        "SMF": "http://free5gc-free5gc-amf-service:80",
+        "UDM": "http://free5gc-free5gc-amf-service:80",
+        "UDR": "http://free5gc-free5gc-amf-service:80",
+        "NRF": "http://nrf-nnrf:8000"
+    }
+}

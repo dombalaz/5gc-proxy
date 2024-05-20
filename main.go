@@ -12,8 +12,7 @@ import (
 )
 
 type Config struct {
-	ListeningPort int               `json:"listeningPort"`
-	NfUrls        map[string]string `json:"nfUrls"`
+	NfUrls map[string]string `json:"nfUrls"`
 }
 
 var endpoint = "http://127.0.0.1:1000"
@@ -22,8 +21,18 @@ var client = &http.Client{
 }
 var config = Config{}
 
+func removeEmpty(s []string) []string {
+	var r []string
+	for _, str := range s {
+		if str != "" {
+			r = append(r, str)
+		}
+	}
+	return r
+}
+
 func getEndpoint(url string) string {
-	res := strings.Split(url, "/")
+	res := removeEmpty(strings.Split(url, "/"))
 	if len(res) == 0 {
 		fmt.Println("Path is empty, returning default endpoint")
 		return endpoint
@@ -63,9 +72,11 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create a new HTTP request with the same method, URL, and body as the original request
-	targetURL := r.URL
-	proxyReq, err := http.NewRequest(r.Method, getEndpoint(r.URL.Path)+targetURL.String(), r.Body)
+	targetURL := getEndpoint(r.URL.Path) + r.URL.String()
+	fmt.Println("sending request to:", targetURL)
+	proxyReq, err := http.NewRequest(r.Method, targetURL, r.Body)
 	if err != nil {
+		fmt.Println("failed to create request:", err)
 		http.Error(w, "Error creating proxy request", http.StatusInternalServerError)
 		return
 	}
@@ -80,6 +91,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	// Send the proxy request using the custom transport
 	resp, err := client.Do(proxyReq)
 	if err != nil {
+		fmt.Println("failed to send request:", err)
 		http.Error(w, "Error sending proxy request", http.StatusInternalServerError)
 		return
 	}
@@ -98,8 +110,6 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
 	// Copy the body of the proxy response to the original response
 	io.Copy(w, resp.Body)
-
-	fmt.Println("finishing")
 }
 
 func retrieveApi(w http.ResponseWriter, r *http.Request) {
